@@ -13,28 +13,32 @@
 // "ball" occurs twice(and no other word does), so it is the most frequent non - banned word in the paragraph.
 // Note that words in the paragraph are not case sensitive, that punctuation is ignored(even if adjacent to words, such as "ball,"), and that "hit" isn't the answer even though it occurs more because it is banned.
 
-//My Solution: 
+//My updated solution with banned words as object lookup and checking the word frequency at the same time in the loop versus looping through checked words separetely at end
 
-const mostCommonWord = function (paragraph, banned) {
+function mostCommonWord(paragraph, banned) {
   let parArr = paragraph.toLowerCase().split(/\W+/);
-  let wordObj = {};
+  let banLookup = {};
+  let checkedWords = {};
+  let mostFreqWord;
+  let mostNumOfWords = 0;
 
-  //iterate through paragraph array to add words to {} with count
+  banned.forEach(word => banLookup[word] = word);
+
   parArr.forEach(word => {
-    if (!banned.includes(word)) {
-      if (!wordObj[word]) {
-        wordObj[word] = 0;
+    if (!banLookup[word]) {
+      if (checkedWords[word]) {
+        checkedWords[word] += 1;
+        if (checkedWords[word] > mostNumOfWords) {
+          mostFreqWord = word;
+          mostNumOfWords = checkedWords[word];
+        }
+      } else {
+        checkedWords[word] = 1;
       }
-      wordObj[word] += 1
     }
-  });
+  })
+  return mostFreqWord
+}
 
-  //find the largest value in wordObj and return its key
-  let largest = Math.max(...Object.values(wordObj));
-
-  for (let key in wordObj) {
-    if (wordObj[key] === largest) return key;
-  }
-};
-
-// console.log(mostCommonWord("Bob hit a ball, the hit BALL flew far after it was hit.", ["hit"])) // --> 'ball'
+console.log(mostCommonWord("Bob hit a ball, the hit BALL flew far after it was hit.", ["hit"])) // --> 'ball'
+console.log(mostCommonWord("Today is another day and tomorrow is also another day with today in the rearview mirror and a day again", ["is", "mirror"])) //another or today
